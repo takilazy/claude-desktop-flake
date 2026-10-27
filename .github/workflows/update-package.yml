@@ -20,22 +20,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check for a new package
+        id: update
         run: python3 scripts/update-package.py
 
-      - name: Install Nix
-        if: ${{ hashFiles('package.nix') != '' }}
-        uses: cachix/install-nix-action@v31
-
-      - name: Validate flake
-        run: NIXPKGS_ALLOW_UNFREE=1 nix flake check --no-build --impure
-
-      - name: Commit update
+      - name: Detect changes
+        id: changes
         run: |
           if git diff --quiet -- package.nix; then
-            echo "Claude Desktop is already up to date."
-            exit 0
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Install Nix
+        if: steps.changes.outputs.changed == 'true'
+        uses: cachix/install-nix-action@v31
+
+      - name: Build package
+        if: steps.changes.outputs.changed == 'true'
+        run: NIXPKGS_ALLOW_UNFREE=1 nix build --no-link --impure .#claude-desktop
+
+      - name: Commit update
+        if: steps.changes.outputs.changed == 'true'
+        run: |
           version=$(sed -n 's/^  version = "\([^"]*\)";$/\1/p' package.nix)
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

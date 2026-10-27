@@ -32,6 +32,7 @@
   nss,
   nspr,
   pango,
+  pipewire,
   systemd,
   vulkan-loader,
   xdg-utils,
@@ -109,6 +110,7 @@ stdenv.mkDerivation {
     nss
     nspr
     pango
+    pipewire
     systemd
     vulkan-loader
     libX11
