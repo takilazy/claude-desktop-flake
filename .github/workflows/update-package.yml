@@ -1,0 +1,44 @@
+name: Update Claude Desktop
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-claude-desktop
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check for a new package
+        run: python3 scripts/update-package.py
+
+      - name: Install Nix
+        if: ${{ hashFiles('package.nix') != '' }}
+        uses: cachix/install-nix-action@v31
+
+      - name: Validate flake
+        run: NIXPKGS_ALLOW_UNFREE=1 nix flake check --no-build --impure
+
+      - name: Commit update
+        run: |
+          if git diff --quiet -- package.nix; then
+            echo "Claude Desktop is already up to date."
+            exit 0
+          fi
+
+          version=$(sed -n 's/^  version = "\([^"]*\)";$/\1/p' package.nix)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.nix
+          git commit -m "claude-desktop: update to ${version}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

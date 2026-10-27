@@ -52,18 +52,18 @@
 
 let
   pname = "claude-desktop";
-  version = "1.30096.1";
+  version = "3.6556.2";
 
   # Anthropic's apt pool: https://downloads.claude.ai/claude-desktop/apt/stable
   # Hashes come from dists/stable/main/binary-<arch>/Packages.
   srcs = {
     x86_64-linux = fetchurl {
       url = "https://downloads.claude.ai/claude-desktop/apt/stable/pool/main/c/claude-desktop/claude-desktop_${version}_amd64.deb";
-      hash = "sha256:09e41a20a5b47ea0e5bc226d4fffa77af43ad450c7cbf5e66e56d6e4fd4ad2e9";
+      hash = "sha256:0f6ed1f2845c30419b8545a8320676d7464a19f625e05e02919238aa6978ecb4";
     };
     aarch64-linux = fetchurl {
       url = "https://downloads.claude.ai/claude-desktop/apt/stable/pool/main/c/claude-desktop/claude-desktop_${version}_arm64.deb";
-      hash = "sha256:16949f5c06387806bd01eb1b2b402af8ed515d37e4ffc6f2d6aae5808af873c8";
+      hash = "sha256:5b70aeb6bb335b3d4684ed106ad68c7da44ff3aa47ff8db2fefe55bde810c10b";
     };
   };
 in
