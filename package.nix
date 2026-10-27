@@ -33,7 +33,10 @@
   nspr,
   pango,
   pipewire,
+  qemu,
+  OVMF,
   systemd,
+  virtiofsd,
   vulkan-loader,
   xdg-utils,
   # X libraries
@@ -155,6 +158,11 @@ stdenv.mkDerivation {
     cp -r usr/lib "$out/lib"
     cp -r usr/share "$out/share"
 
+    # Cowork requires QEMU UEFI firmware. Keep the firmware in the runtime
+    # closure alongside the executables exposed through the launcher wrapper.
+    mkdir -p "$out/share/OVMF"
+    ln -s "${OVMF.fd}/FV/"* "$out/share/OVMF/"
+
     # chrome-sandbox in the Nix store cannot be setuid-root, so Chromium falls
     # back to its unprivileged user-namespace sandbox (default-enabled on NixOS).
     # Remove the unusable helper so it isn't picked and mis-reported.
@@ -164,7 +172,7 @@ stdenv.mkDerivation {
     makeWrapper "$out/lib/claude-desktop/claude-desktop" "$out/bin/claude-desktop" \
       "''${gappsWrapperArgs[@]}" \
       --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libGL libgbm vulkan-loader ]}" \
-      --suffix PATH : "${lib.makeBinPath [ xdg-utils ]}"
+      --suffix PATH : "${lib.makeBinPath [ qemu virtiofsd xdg-utils ]}"
 
     # Point the .desktop entry at our wrapper.
     substituteInPlace "$out/share/applications/com.anthropic.Claude.desktop" \
