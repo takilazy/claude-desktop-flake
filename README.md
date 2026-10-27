@@ -66,9 +66,10 @@ environment.systemPackages = [ claude-desktop.packages.${pkgs.system}.default ];
   removed; Chromium falls back to its unprivileged user-namespace sandbox, which
   NixOS enables by default (the module makes that dependency explicit). No
   `--no-sandbox` weakening required.
-- **Updates** — the desktop app doesn't self-update on Linux. To bump, edit
-  `version` in `package.nix` and replace the two `hash =` values with the ones
-  from the apt index:
+- **Updates** — the desktop app doesn't self-update on Linux. A daily GitHub
+  Actions workflow checks the apt indexes and commits new versions automatically.
+  To update manually, run `python3 scripts/update-package.py`. The metadata comes
+  from:
   `https://downloads.claude.ai/claude-desktop/apt/stable/dists/stable/main/binary-{amd64,arm64}/Packages`.
 - **What's not in the Linux beta** — Computer Use, dictation, and (on native
   Wayland) the Quick Entry global hotkey. See the [docs][docs].
